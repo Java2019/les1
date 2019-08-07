@@ -8,7 +8,7 @@ def get_con() -> str:
     cur = conn.cursor()
 
     # Execute a command: this creates a new table
-    cur.execute("CREATE TABLE publictest (id serial PRIMARY KEY, num integer, data varchar);")
+    cur.execute("CREATE TABLE if not exists my_test(id serial PRIMARY KEY, num integer, data varchar);")
 
     # Pass data to fill a query placeholders and let Psycopg perform
     # the correct conversion (no more SQL injections!)
