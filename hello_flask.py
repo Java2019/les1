@@ -40,11 +40,6 @@ def view_the_log() -> 'html':
                            the_data=contents,)
 
 
-def get_log() -> str:
-    print('there')
-    get_con()
-
-
 @app.route('/')
 @app.route('/entry')
 def entry_page() -> 'html':
