@@ -1,14 +1,23 @@
 from flask import Flask, render_template, request, escape
 from vsearch import search4letters
-from getlog import get_con
-
+from DBcm import UseDatabase
 
 app = Flask(__name__)
 
+app.config['dbconfig'] = "dbname=log user=postgres host=localhost password=1"
+
 
 def log_request(req: 'flask_request', res: str) -> None:
-    with open('vsearch.log', 'a') as log:
-        print(req.form, req.remote_addr, req.user_agent ,res, file=log)
+    with UseDatabase(app.config['dbconfig']) as cursor:
+        __SQL = "CREATE TABLE if not exists (id serial PRIMARY KEY, " \
+                "phrase str, letters str, ip str, browser_string str, results str);"
+        cursor.execute(__SQL)
+        __SQL = "INSERT INTO log (phrase, letters, ip, browser_string, results) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(__SQL, (req.form['phrase'],
+                               req.form['letters'],
+                               req.remote_addr,
+                               req.user_agent,
+                               res, ))
 
 
 @app.route('/search4', methods=['POST'])
