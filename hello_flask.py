@@ -41,6 +41,7 @@ def view_the_log() -> 'html':
 
 
 def get_log() -> str:
+    print('there')
     get_con()
 
 
