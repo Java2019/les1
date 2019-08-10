@@ -4,7 +4,7 @@ from DBcm import UseDatabase
 
 app = Flask(__name__)
 
-app.my_config['dbconfig'] = "dbname=log user=postgres host=localhost password=1"
+app.config['dbconfig'] = "dbname=log user=postgres host=localhost password=1"
 
 
 def log_request(req: 'flask_request', res: str) -> None:
