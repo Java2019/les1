@@ -6,5 +6,5 @@ setup(
     author='HF Python 2e',
     author_email='hfpy2e@gmail.com',
     url='headfirstlabs.com',
-    py_modules=['vsearch'],
+    py_modules=['vsearch'], install_requires=['flask']
 )

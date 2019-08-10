@@ -4,10 +4,8 @@ class CountFromBy:
         self.val = v
         self.incr = i
 
+    def increase(self) -> None:
+        self.val += self.incr
 
-def increase(self) -> None:
-    self.val += self.incr
-
-
-def __repr__(self) -> str:
-    return str(self.val)
+    def __repr__(self) -> str:
+        return str(self.val)
