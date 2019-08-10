@@ -5,6 +5,14 @@ class ConnectionError(Exception):
     pass
 
 
+class CredentialsError(Exception):
+    pass
+
+
+class SQLError(Exception):
+    pass
+
+
 class UseDatabase:
 
     def __init__(self, config: dict) -> None:
@@ -17,9 +25,14 @@ class UseDatabase:
             return self.cursor
         except psycopg2.InterfaceError as err:
             raise ConnectionError(err)
-
+        except psycopg2.ProgrammingError as err:
+            raise CredentialsError(err)
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.conn.commit()
         self.cursor.close()
         self.conn.close()
+        if exc_type is psycopg2.ProgrammingError:
+            raise SQLError(exc_val)
+        elif exc_type:
+            raise exc_type(exc_val)

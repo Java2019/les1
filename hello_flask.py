@@ -2,12 +2,13 @@ from flask import Flask, render_template, request, escape, session
 from vsearch import search4letters
 from DBcm import UseDatabase
 from checker import check_logged_in
-from DBcm import ConnectionError
+from DBcm import ConnectionError, CredentialsError, SQLError
 
 app = Flask(__name__)
 
 app.config['dbconfig'] = "dbname=log user=postgres host=localhost password=1"
 app.secret_key = 'my_secret_key'
+
 
 def log_request(req: 'flask_request', res: str) -> None:
     with UseDatabase(app.config['dbconfig']) as cursor:
@@ -52,6 +53,10 @@ def view_the_log() -> 'html':
                                    the_data=contents,)
     except ConnectionError as err:
         print('Is your database switched on? Error:', str(err))
+    except CredentialsError as err:
+        print('User-id/Password issues. Error:', str(err))
+    except SQLError as err:
+        print('Is your query correct? Error:', str(err))
     except Exception as err:
         print('Something went wrong:', str(err))
     return 'Error'
