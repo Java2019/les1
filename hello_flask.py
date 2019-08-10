@@ -4,19 +4,19 @@ from DBcm import UseDatabase
 
 app = Flask(__name__)
 
-app.config['dbconfig'] = "dbname=log user=postgres host=localhost password=1"
+app.my_config['dbconfig'] = "dbname=log user=postgres host=localhost password=1"
 
 
 def log_request(req: 'flask_request', res: str) -> None:
     with UseDatabase(app.config['dbconfig']) as cursor:
-        __SQL = "CREATE TABLE if not exists (id serial PRIMARY KEY, " \
-                "phrase str, letters str, ip str, browser_string str, results str);"
+        __SQL = "CREATE TABLE if not exists log (id serial PRIMARY KEY, " \
+                "phrase text, letters text, ip text, browser_string text, results text);"
         cursor.execute(__SQL)
         __SQL = "INSERT INTO log (phrase, letters, ip, browser_string, results) VALUES (%s, %s, %s, %s, %s)"
         cursor.execute(__SQL, (req.form['phrase'],
                                req.form['letters'],
                                req.remote_addr,
-                               req.user_agent,
+                               req.user_agent.string,
                                res, ))
 
 
@@ -37,16 +37,15 @@ def do_search() -> 'html':
 @app.route('/viewlog')
 def view_the_log() -> 'html':
     contents = []
-    with open('vsearch.log') as log:
-        for line in log:
-            contents.append([])
-            for item in line.split('|'):
-                contents[-1].append(escape(item))
-    titles = ('Form Data', 'Remote_addr', 'User_agent', 'Results')
-    return render_template('viewlog.html',
-                           the_title='View Log',
-                           the_row_titles=titles,
-                           the_data=contents,)
+    with UseDatabase(app.config['dbconfig']) as cursor:
+        __SQL = "SELECT * FROM log;"
+        cursor.execute(__SQL)
+        contents = cursor.fetchall()
+        titles = ('Form Data', 'Remote_addr', 'User_agent', 'Results')
+        return render_template('viewlog.html',
+                               the_title='View Log',
+                               the_row_titles=titles,
+                               the_data=contents,)
 
 
 @app.route('/')
