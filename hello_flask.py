@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, escape, session
 from vsearch import search4letters
 from DBcm import UseDatabase
 from checker import check_logged_in
+from DBcm import ConnectionError
 
 app = Flask(__name__)
 
@@ -39,15 +40,21 @@ def do_search() -> 'html':
 @check_logged_in
 def view_the_log() -> 'html':
     contents = []
-    with UseDatabase(app.config['dbconfig']) as cursor:
-        __SQL = "SELECT * FROM log;"
-        cursor.execute(__SQL)
-        contents = cursor.fetchall()
-        titles = ('Form Data', 'Remote_addr', 'User_agent', 'Results')
-        return render_template('viewlog.html',
-                               the_title='View Log',
-                               the_row_titles=titles,
-                               the_data=contents,)
+    try:
+        with UseDatabase(app.config['dbconfig']) as cursor:
+            __SQL = "SELECT * FROM log;"
+            cursor.execute(__SQL)
+            contents = cursor.fetchall()
+            titles = ('Form Data', 'Remote_addr', 'User_agent', 'Results')
+            return render_template('viewlog.html',
+                                   the_title='View Log',
+                                   the_row_titles=titles,
+                                   the_data=contents,)
+    except ConnectionError as err:
+        print('Is your database switched on? Error:', str(err))
+    except Exception as err:
+        print('Something went wrong:', str(err))
+    return 'Error'
 
 
 @app.route('/')
